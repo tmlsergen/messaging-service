@@ -1,0 +1,152 @@
+basePath: /
+definitions:
+  app.HTTPError:
+    properties:
+      code:
+        type: string
+      error:
+        type: string
+      request_id:
+        type: string
+      status:
+        type: integer
+      validation_errors:
+        items:
+          additionalProperties:
+            type: string
+          type: object
+        type: array
+    type: object
+  message.CronActionRequest:
+    properties:
+      action:
+        enum:
+        - start
+        - stop
+        type: string
+    required:
+    - action
+    type: object
+  message.CronActionResponse:
+    properties:
+      status:
+        type: string
+    type: object
+  message.GetMessages:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      message_id:
+        type: string
+      status:
+        $ref: '#/definitions/src_api_internal_message.Status'
+      to:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  message.GetMessagesResponse:
+    properties:
+      limit:
+        type: integer
+      messages:
+        items:
+          $ref: '#/definitions/message.GetMessages'
+        type: array
+      page:
+        type: integer
+      page_count:
+        type: integer
+      total:
+        type: integer
+    type: object
+  src_api_internal_message.Status:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - pending
+    - processed
+host: localhost:80
+info:
+  contact:
+    email: fiber@swagger.io
+    name: API Support
+  description: This is a sample swagger for Fiber
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Fiber Example API
+  version: "1.0"
+paths:
+  /api/v1/messages:
+    get:
+      consumes:
+      - application/json
+      description: Fetch processed messages
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/message.GetMessagesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.HTTPError'
+      summary: Fetch processed messages
+      tags:
+      - Messages
+  /api/v1/messages/cron:
+    post:
+      consumes:
+      - application/json
+      description: Handle cron action
+      parameters:
+      - description: Cron action to be processed
+        in: body
+        name: action
+        required: true
+        schema:
+          $ref: '#/definitions/message.CronActionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/message.CronActionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/app.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/app.HTTPError'
+      summary: Handle cron action
+      tags:
+      - Messages
+swagger: "2.0"
